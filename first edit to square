@@ -1,0 +1,155 @@
+{% comment %}
+  Section: Collection Tiles (Homepage)
+  - Add up to 5 blocks for desktop (only the first 5 look best in the 5-col grid)
+  - On mobile, only the first 3 blocks are shown
+{% endcomment %}
+{%- assign section_id = 'section_' | append: section.id -%}
+
+<style>
+    .tilesWrap {
+        margin: 0 auto;
+    }
+
+    .tilesGrid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+    }
+
+    /* Tile as a DIV */
+    .tile {
+        position: relative;
+        display: block;
+        overflow: hidden;
+    }
+
+    .tileMedia {
+        position: relative;
+        width: 100%;
+        padding-top: 125%;
+        background: #f2f2f2 center/cover no-repeat;
+    }
+
+    .tileLabel {
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        color: var(--black);
+        font-size: clamp(0.625rem, 0.481rem + 0.577vw, 1rem);
+        font-family: var(--font-heading-family), serif;
+        text-decoration: underline;
+        text-transform: uppercase;
+        text-align: center;
+        pointer-events: none;
+        font-feature-settings: 'liga' off, 'clig' off;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 20px;
+        letter-spacing: 1px;
+    }
+
+    /* Stretched link to make the whole tile clickable */
+    .tileAnchor {
+        position: absolute;
+        inset: 0;
+        display: block;
+        text-indent: -9999px;
+        overflow: hidden;
+    }
+
+    /* Hover lift */
+    @media (hover: hover) {
+        .tile {
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+
+        .tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .12);
+        }
+    }
+
+    /* Mobile: 3 columns, hide blocks after the first 3 */
+    @media (max-width: 800px) {
+        .tilesGrid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .tile--mobile-hidden {
+            display: none !important;
+        }
+
+        .tileLabel {
+            font-size: 11px;
+            padding: 6px 8px;
+        }
+    }
+</style>
+
+<section id="{{ section_id }}" class="collectionTiles">
+    <div class="tilesWrap">
+        <div class="tilesGrid" role="list">
+            {%- assign i = 0 -%}
+            {%- for block in section.blocks -%}
+                {%- assign i = i | plus: 1 -%}
+                {%- assign img = block.settings.bg_image -%}
+                {%- assign label = block.settings.label | default: 'Shop' -%}
+                {%- assign href = block.settings.url | default: routes.collections_url -%}
+
+                <div
+                        role="listitem"
+                        class="tile {% if i > 3 %}tile--mobile-hidden{% endif %}"
+                        {{ block.shopify_attributes }}
+                >
+                    <div
+                            class="tileMedia"
+                            style="{% if img %}background-image:url({{ img | image_url: width: 900 }});{% endif %}"
+                    ></div>
+                    <div class="tileLabel">{{ label }}</div>
+                    <a class="tileAnchor" href="{{ href }}" aria-label="{{ label | escape }}"></a>
+                </div>
+            {%- endfor -%}
+        </div>
+    </div>
+</section>
+
+{% schema %}
+{
+  "name": "Collection tiles (5/3)",
+  "tag": "section",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "bg_image",
+          "label": "Background image"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Link text",
+          "default": "Watches"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link URL"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    {
+      "name": "Collection tiles (5/3)",
+      "category": "Homepage"
+    }
+  ]
+}
+{% endschema %}
