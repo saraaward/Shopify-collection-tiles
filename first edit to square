@@ -73,12 +73,35 @@
     /* Mobile: 3 columns, hide blocks after the first 3 */
     @media (max-width: 800px) {
         .tilesGrid {
-            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
         }
 
-        .tile--mobile-hidden {
-            display: none !important;
+        {% if section.settings.mobile_enable_scroll %}
+            .tilesWrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tilesGrid {
+                display: flex;
+                width: max-content;
+            }
+
+            .tile {
+                flex: 0 0 {{ section.settings.mobile_tile_width }}px;
+            }
+        {% else %}
+            .tilesGrid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .tile--mobile-hidden {
+                display: none !important;
+            }
+        {% endif %}
+
+        .tileMedia {
+            padding-top: {{ section.settings.mobile_tile_aspect_ratio }}%;
         }
 
         .tileLabel {
@@ -100,7 +123,7 @@
 
                 <div
                         role="listitem"
-                        class="tile {% if i > 3 %}tile--mobile-hidden{% endif %}"
+                        class="tile {% if i > 3 and section.settings.mobile_enable_scroll == false %}tile--mobile-hidden{% endif %}"
                         {{ block.shopify_attributes }}
                 >
                     <div
@@ -119,7 +142,38 @@
 {
   "name": "Collection tiles (5/3)",
   "tag": "section",
-  "settings": [],
+  "settings": [
+    {
+      "type": "header",
+      "content": "Mobile layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_enable_scroll",
+      "label": "Enable horizontal scroll on mobile",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "mobile_tile_width",
+      "min": 140,
+      "max": 320,
+      "step": 10,
+      "unit": "px",
+      "label": "Tile width on mobile (scroll mode)",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "mobile_tile_aspect_ratio",
+      "min": 80,
+      "max": 200,
+      "step": 5,
+      "unit": "%",
+      "label": "Tile height ratio on mobile",
+      "default": 125
+    }
+  ],
   "blocks": [
     {
       "type": "tile",
